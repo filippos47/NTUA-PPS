@@ -30,42 +30,45 @@ if len(sys.argv) < 2:
 
 stats_by_size = parse_file(sys.argv[1])
 
-markers = set(['.', 'o', 'v', '*', 'D'])
-"""
-ax = plt.subplot(111)
-ax.set_xlabel("Number of threads")
-ax.set_ylabel("Time")
+markers = set(['.', 'o', 'v', '*', 'D', 'X'])
+
 x_ticks = [1, 2, 4, 6, 8]
-ax.xaxis.set_ticks(x_ticks)
-ax.xaxis.set_ticklabels(map(str, x_ticks))
-
+serial_time = {}
+i = 0
 for size, stats in stats_by_size.items():
-        y_axis = [0 for _ in range(len(x_ticks))]
-        for stat in stats:
-                pos = x_ticks.index(int(stat["nthread"]))
-                y_axis[pos] = float(stat["elapsed"])
-        ax.plot(x_ticks, tuple(y_axis), label="N="+size, marker=markers.pop())
-
-lgd = ax.legend(ncol=len(stats_by_size.keys()), bbox_to_anchor=(0.9, -0.1), prop={'size':8})
-plt.savefig("stats.png", bbox_extra_artists=(lgd,), bbox_inches='tight')
-"""
-
-
-i = 1
-for size, stats in stats_by_size.items():
-    fig = plt.figure(i)
     i += 1
+    fig = plt.figure(i)
     plt.grid(True)
     ax = plt.subplot(111)
     ax.set_xlabel("Number of threads")
-    ax.set_ylabel("Time")
-    x_ticks = [1, 2, 4, 6, 8]
+    ax.set_ylabel("Time (seconds)")
     ax.xaxis.set_ticks(x_ticks)
     ax.xaxis.set_ticklabels(map(str, x_ticks))
     y_axis = [0 for _ in range(len(x_ticks))]
     for stat in stats:
         pos = x_ticks.index(int(stat["nthread"]))
+        if int(stat["nthread"]) == 1:
+            serial_time[size] = float(stat["elapsed"])
         y_axis[pos] = float(stat["elapsed"])
+
     ax.plot(x_ticks, tuple(y_axis), label="N="+size, marker=markers.pop())
     lgd = ax.legend(ncol=len(stats_by_size.keys()), bbox_to_anchor=(0.9, -0.1), prop={'size':8})
-    plt.savefig("stats" + size + ".png", bbox_extra_artists=(lgd,), bbox_inches='tight')
+    plt.savefig("stats-time-" + size + ".png", bbox_extra_artists=(lgd,), bbox_inches='tight')
+
+for size, stats in stats_by_size.items():
+    i += 1
+    fig = plt.figure(i)
+    plt.grid(True)
+    ax = plt.subplot(111)
+    ax.set_xlabel("Number of threads")
+    ax.set_ylabel("Speedup (Serial Time / Parallel Time)")
+    ax.xaxis.set_ticks(x_ticks)
+    ax.xaxis.set_ticklabels(map(str, x_ticks))
+    y_axis = [0 for _ in range(len(x_ticks))]
+    for stat in stats:
+        pos = x_ticks.index(int(stat["nthread"]))
+        y_axis[pos] = serial_time[size] / float(stat["elapsed"])
+
+    ax.plot(x_ticks, tuple(y_axis), label="N="+size, marker=markers.pop())
+    lgd = ax.legend(ncol=len(stats_by_size.keys()), bbox_to_anchor=(0.9, -0.1), prop={'size':8})
+    plt.savefig("stats-speedup-" + size + ".png", bbox_extra_artists=(lgd,), bbox_inches='tight')
