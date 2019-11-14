@@ -67,4 +67,4 @@ for size, size_stats in stats_by_size.items():
         ax.plot(x_ticks, tuple(y_axis), label="B="+str(block_size), marker=markers[j])
 
     lgd = ax.legend(ncol=len(stats_by_size.keys()), bbox_to_anchor=(0.9, -0.1), prop={'size':8})
-    plt.savefig("tiled-fw-size-" + str(size) + "-init.png", bbox_extra_artists=(lgd,), bbox_inches='tight')
+    plt.savefig("tiled-fw-size-" + str(size) + "-final.png", bbox_extra_artists=(lgd,), bbox_inches='tight')
